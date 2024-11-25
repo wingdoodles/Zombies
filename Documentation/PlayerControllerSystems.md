@@ -4,9 +4,9 @@
 
 ### Camera Core
 - ✓ Mouse look controls
-- View bobbing
-- Camera shake system
-- FOV management
+- ✓ View bobbing
+- ✓ Camera shake system
+- ✓ FOV management
 - Weapon view model positioning
 - Aim down sights (ADS) system
 - Recoil handling
@@ -14,7 +14,7 @@
 ### Implementation Details
 - ✓ Mouse sensitivity settings
 - ✓ Vertical angle clamping
-- Smooth transitions
+- ✓ Smooth transitions
 - Camera position offsets
 - Screen effects manager
 
@@ -29,6 +29,14 @@
 - Momentum system
 - Footstep system
 
+### Advanced Movement
+- Slide mechanics
+- Mantle system
+- Lean system
+- Movement state machine
+- Surface detection
+- Movement sound system
+
 ### Physics Parameters
 - ✓ Walk speed: 5f
 - ✓ Run speed: 8f
@@ -37,6 +45,7 @@
 - ✓ Gravity: -9.81f
 
 ## 3. Weapon Handling
+
 ### Weapon States
 - Idle
 - ADS
@@ -54,6 +63,7 @@
 - Shell ejection system
 
 ## 4. Health/Armor System
+
 ### Health Management
 - Base health
 - Regeneration system
@@ -69,22 +79,24 @@
 - Armor break effects
 
 ## 5. Player State Management
+
 ### State Machine
-@Done Idle state
-@Done Walking state
-@Done Running state
-@Done Crouching state
-@Done Jumping state
-@Done Damaged state
+- ✓ Idle state
+- ✓ Walking state
+- ✓ Running state
+- ✓ Crouching state
+- ✓ Jumping state
+- ✓ Damaged state
 
 ### State Effects
-@Done Movement speed modifiers
+- ✓ Movement speed modifiers
 - Sound emission levels
-@Done Animation transitions
+- ✓ Animation transitions
 - Camera effects
 - UI updates
 
 ## 6. Interaction System
+
 ### Core Features
 - Ray casting
 - Interaction prompts
@@ -94,6 +106,7 @@
 - Purchase system
 
 ## 7. Player Feedback Systems
+
 ### Visual Feedback
 - Damage direction indicators
 - Low health warning
@@ -111,6 +124,7 @@
 - Voice lines/grunts
 
 ## 8. Environmental Interaction
+
 ### Surface Effects
 - Material-based footsteps
 - Surface sliding sounds
@@ -126,6 +140,7 @@
 - Water interaction
 
 ## 9. Animation System
+
 ### First Person Animations
 - Weapon idle
 - Movement animations
@@ -142,6 +157,7 @@
 - Recoil handling
 
 ## 10. Debug Systems
+
 ### Visual Debugging
 - Movement vectors
 - Ray casts
@@ -150,6 +166,7 @@
 - Performance metrics
 
 ## 11. Player Customization
+
 ### Visual Customization
 - Character hands/arms
 - Equipment appearance
@@ -165,6 +182,7 @@
 - Accessibility options
 
 ## 12. Advanced Camera Effects
+
 ### Dynamic Effects
 - Weapon impact shake
 - Landing impact
@@ -180,6 +198,7 @@
 - Frost/heat effects
 
 ## 13. Performance Optimization
+
 ### LOD Systems
 - Animation culling
 - Effect distance scaling
@@ -195,6 +214,7 @@
 - Resource preloading
 
 ## 14. Input Buffer System
+
 ### Input Management
 - Action queuing
 - Input prediction
@@ -203,6 +223,7 @@
 - Anti-spam measures
 
 ## 15. Player Statistics
+
 ### Tracking Systems
 - Movement metrics
 - Accuracy stats
@@ -218,6 +239,7 @@
 - Instant kill
 
 ## Technical Requirements
+
 ### Scripts
 - PlayerController.cs
 - HeadBob.cs

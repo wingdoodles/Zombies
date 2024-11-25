@@ -8,15 +8,16 @@
 - Visual Studio/VS Code
 - Git for version control
 - Blender/Maya for 3D modeling
+##Done
 
 ## 2. Core Game Systems
 ### Player Controller
 - First-person camera
 - Movement system (walk, run, crouch)
-- Weapon handling
 - Health/armor system
 
 ### Weapon System
+- Weapon handling
 - Weapon base class
 - Multiple weapon types
 - Ammunition system
