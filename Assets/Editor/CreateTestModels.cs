@@ -1,8 +1,22 @@
 using UnityEngine;
 using UnityEditor;
+using System.IO;
 
 public class CreateTestModels : EditorWindow
 {
+    private void OnDestroy()
+    {
+        // Clean up any remaining test objects
+        GameObject[] testObjects = GameObject.FindObjectsOfType<GameObject>();
+        foreach (GameObject obj in testObjects)
+        {
+            if (obj.name.StartsWith("Test"))
+            {
+                DestroyImmediate(obj);
+            }
+        }
+    }
+
     [MenuItem("Tools/Create Test Models")]
     public static void ShowWindow()
     {
@@ -13,25 +27,24 @@ public class CreateTestModels : EditorWindow
     {
         GUILayout.Label("Create Test FBX Files", EditorStyles.boldLabel);
 
-        if (GUILayout.Button("Create Character Test"))
+        if (GUILayout.Button("Create All Test Objects"))
         {
-            CreateCharacterTest();
+            CreateAllTestObjects();
         }
+    }
 
-        if (GUILayout.Button("Create Weapon Test"))
-        {
-            CreateWeaponTest();
-        }
-
-        if (GUILayout.Button("Create Environment Test"))
-        {
-            CreateEnvironmentTest();
-        }
+    private void CreateAllTestObjects()
+    {
+        CreateCharacterTest();
+        CreateWeaponTest();
+        CreateEnvironmentTest();
+        
+        EditorUtility.DisplayDialog("Objects Created", 
+            "Test objects have been created in the scene.\nSelect them and use GameObject > Export To FBX... to export.", "OK");
     }
 
     private void CreateCharacterTest()
     {
-        // Create a simple humanoid shape
         GameObject character = new GameObject("TestCharacter");
         GameObject body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -40,13 +53,10 @@ public class CreateTestModels : EditorWindow
         head.transform.parent = character.transform;
         
         head.transform.localPosition = Vector3.up * 1f;
-        
-        ExportFBX(character, "Characters/TEST_CHARACTER");
     }
 
     private void CreateWeaponTest()
     {
-        // Create a simple weapon shape
         GameObject weapon = new GameObject("TestWeapon");
         GameObject barrel = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         GameObject handle = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -58,12 +68,11 @@ public class CreateTestModels : EditorWindow
         handle.transform.localScale = new Vector3(0.1f, 0.2f, 0.1f);
         handle.transform.localPosition = Vector3.down * 0.3f;
         
-        ExportFBX(weapon, "Weapons/TEST_WEAPON");
+        weapon.transform.position = Vector3.right * 2;
     }
 
     private void CreateEnvironmentTest()
     {
-        // Create a simple environment piece
         GameObject environment = new GameObject("TestEnvironment");
         GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
         GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -75,15 +84,6 @@ public class CreateTestModels : EditorWindow
         wall.transform.localScale = new Vector3(5f, 2f, 0.1f);
         wall.transform.localPosition = Vector3.forward * 2.5f + Vector3.up;
         
-        ExportFBX(environment, "Environment/TEST_ENVIRONMENT");
-    }
-
-    private void ExportFBX(GameObject obj, string fileName)
-    {
-        string path = $"Assets/Models/Test/{fileName}.fbx";
-        FbxExporter.ExportObject(path, obj);
-        AssetDatabase.Refresh();
-        EditorUtility.DisplayDialog("Export Complete", $"Test model exported to {path}", "OK");
-        DestroyImmediate(obj);
+        environment.transform.position = Vector3.left * 2;
     }
 }
