@@ -20,6 +20,24 @@ public class PlayerController : MonoBehaviour
     public float mouseSensitivity = 2f;
     public float maxLookAngle = 80f;
     public bool invertY = false;
+
+    [Header("Crouch Settings")]
+    public float crouchHeight = 1f;
+    public float standingHeight = 2f;
+    private bool isCrouching = false;
+    private float currentHeight;
+        
+    [Header("Momentum Settings")]
+    public float accelerationSpeed = 10f;
+    public float decelerationSpeed = 15f;
+    private Vector3 currentVelocity;
+
+    [Header("Slide Settings")]
+    public float slideSpeed = 10f;
+    public float slideTime = 1f;
+    public float slideCooldown = 1f;
+    private bool canSlide = true;
+    private float currentSlideTime;
     
     [Header("References")]
     public Camera playerCamera;
@@ -30,6 +48,22 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveDirection;
     private float verticalRotation = 0f;
     private float currentMovementSpeed;
+
+    public Vector3 GetMovementVector()
+    {
+        return currentVelocity;
+    }
+    
+    public Vector3 GetVelocity()
+    {
+        return characterController.velocity;
+    }
+    
+    public bool IsGrounded()
+    {
+        return characterController.isGrounded;
+    }
+    
     private void Start()
     {
         characterController = GetComponent<CharacterController>();
@@ -48,14 +82,26 @@ public class PlayerController : MonoBehaviour
         ApplyGravity();
         HandleStateTransitions();
     }
-    
+
     private void HandleMovementInput()
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
         
-        Vector3 move = transform.right * horizontal + transform.forward * vertical;
-        moveDirection = move.normalized;
+        Vector3 targetDirection = transform.right * horizontal + transform.forward * vertical;
+        targetDirection = targetDirection.normalized * currentMovementSpeed;
+        
+        // Apply momentum
+        currentVelocity = Vector3.Lerp(
+            currentVelocity, 
+            targetDirection, 
+            (targetDirection.magnitude > 0 ? accelerationSpeed : decelerationSpeed) * Time.deltaTime
+        );
+        
+        Vector3 finalMovement = currentVelocity;
+        finalMovement.y = verticalVelocity;
+        
+        characterController.Move(finalMovement * Time.deltaTime);
         
         // Handle jumping
         if (Input.GetButtonDown("Jump") && canJump && characterController.isGrounded)
@@ -63,6 +109,22 @@ public class PlayerController : MonoBehaviour
             verticalVelocity = jumpForce;
             canJump = false;
             StartCoroutine(ResetJumpCooldown());
+        }
+        // Handle crouching toggle
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            if (isCrouching)
+            {
+                characterController.height = standingHeight;
+                currentMovementSpeed = walkSpeed;
+                isCrouching = false;
+            }
+            else
+            {
+                characterController.height = crouchHeight;
+                currentMovementSpeed = crouchSpeed;
+                isCrouching = true;
+            }
         }
         
         // Apply gravity and vertical movement
@@ -74,11 +136,6 @@ public class PlayerController : MonoBehaviour
         {
             verticalVelocity = -2f;
         }
-        
-        Vector3 finalMovement = moveDirection * currentMovementSpeed;
-        finalMovement.y = verticalVelocity;
-        
-        characterController.Move(finalMovement * Time.deltaTime);
     }
     
     private IEnumerator ResetJumpCooldown()
@@ -86,13 +143,26 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(jumpCooldown);
         canJump = true;
     }
+    private IEnumerator DoCrouch(float targetHeight)
+    {
+        while (Mathf.Abs(characterController.height - targetHeight) > 0.01f)
+        {
+            characterController.height = Mathf.Lerp(characterController.height, targetHeight, crouchSpeed * Time.deltaTime);
+            yield return null;
+        }
+        characterController.height = targetHeight;
+    }
     
     private void HandleMouseLook()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * (invertY ? 1 : -1);
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        if (invertY)
+            verticalRotation += mouseY;
+        else
+            verticalRotation -= mouseY;
         
-        verticalRotation += mouseY;
         verticalRotation = Mathf.Clamp(verticalRotation, -maxLookAngle, maxLookAngle);
         
         playerCamera.transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
@@ -101,13 +171,14 @@ public class PlayerController : MonoBehaviour
     
     private void ApplyGravity()
     {
-        if (characterController.isGrounded && velocity.y < 0)
+        if (characterController.isGrounded && verticalVelocity < 0)
         {
-            velocity.y = -2f;
+            verticalVelocity = -2f;
         }
         
-        velocity.y += gravity * Time.deltaTime;
-        characterController.Move(velocity * Time.deltaTime);
+        verticalVelocity += gravity * Time.deltaTime;
+        Vector3 gravityMove = new Vector3(0, verticalVelocity, 0);
+        characterController.Move(gravityMove * Time.deltaTime);
     }
     
     private void HandleStateTransitions()
@@ -131,4 +202,40 @@ public class PlayerController : MonoBehaviour
     {
         currentMovementSpeed = speed;
     }
+    private void HandleSlide()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftControl) && canSlide && characterController.isGrounded)
+        {
+            StartSlide();
+        }
+        
+        if (stateManager.currentState == PlayerState.Sliding)
+        {
+            UpdateSlide();
+        }
+    }
+    
+    private void StartSlide()
+    {
+        stateManager.TransitionToState(PlayerState.Sliding);
+        currentSlideTime = slideTime;
+        canSlide = false;
+        StartCoroutine(ResetSlideCooldown());
+    }
+    
+    private void UpdateSlide()
+    {
+        currentSlideTime -= Time.deltaTime;
+        if (currentSlideTime <= 0)
+        {
+            stateManager.TransitionToState(PlayerState.Walking);
+        }
+    }
+    
+    private IEnumerator ResetSlideCooldown()
+    {
+        yield return new WaitForSeconds(slideCooldown);
+        canSlide = true;
+    }
 }
+

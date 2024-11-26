@@ -40,6 +40,9 @@ public class PlayerStateManager : MonoBehaviour
             case PlayerState.Crouching:
                 playerController.SetMovementSpeed(playerController.crouchSpeed);
                 break;
+            case PlayerState.Sliding:
+                playerController.SetMovementSpeed(playerController.slideSpeed);
+                break;
             default:
                 playerController.SetMovementSpeed(playerController.walkSpeed);
                 break;
