@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class DebugManager : MonoBehaviour
 {
@@ -8,9 +9,16 @@ public class DebugManager : MonoBehaviour
     public bool showCollisions = true;
     public bool showStateInfo = true;
     public bool showPerformanceMetrics = true;
-    
     private PlayerController playerController;
     private PlayerStateManager stateManager;
+    private List<CollisionPoint> collisionPoints = new List<CollisionPoint>();
+
+    private struct CollisionPoint
+    {
+        public Vector3 point;
+        public Vector3 normal;
+        public float time;
+    }
     
     void Start()
     {
@@ -20,6 +28,19 @@ public class DebugManager : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        if (!playerController || !stateManager) return;
+
+        // Draw collision points
+        if (showCollisions)
+        {
+            Gizmos.color = Color.red;
+            collisionPoints.RemoveAll(p => Time.time - p.time > 2f);
+            foreach (var point in collisionPoints)
+            {
+                Gizmos.DrawWireSphere(point.point, 0.1f);
+            }
+        }
+
         if (showMovementVectors)
         {
             // Movement vector (Blue)
@@ -38,6 +59,20 @@ public class DebugManager : MonoBehaviour
             Gizmos.DrawLine(transform.position, transform.position + Vector3.down * 2f);
         }
     }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (showCollisions)
+        {
+            Debug.DrawRay(hit.point, hit.normal * 2f, Color.red, 2f);
+            collisionPoints.Add(new CollisionPoint { 
+                point = hit.point, 
+                normal = hit.normal, 
+                time = Time.time 
+            });
+        }
+    }
+
     void OnGUI()
     {
         if (showStateInfo)
@@ -55,5 +90,16 @@ public class DebugManager : MonoBehaviour
             GUI.Label(new Rect(Screen.width - 200, 50, 180, 20), $"Frame Time: {Time.deltaTime * 1000:F1}ms");
         }
     }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (showCollisions)
+        {
+            foreach (ContactPoint contact in collision.contacts)
+            {
+                Debug.DrawRay(contact.point, contact.normal * 2f, Color.yellow, 2f);
+            }
+        }
+    }
+    
 }
 

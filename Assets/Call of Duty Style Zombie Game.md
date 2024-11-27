@@ -14,7 +14,7 @@
 ### Player Controller
 - ✓ First-person camera (fully implemented with look controls, bobbing, shake, FOV)
 - ✓ Movement system (walk, run, crouch, jump, slide, surface detection)
-- Health/armor system
+- ✓ Health/armor system
 
 ### Weapon System
 - Weapon handling

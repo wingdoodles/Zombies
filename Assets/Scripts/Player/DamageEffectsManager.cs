@@ -20,7 +20,6 @@ public class DamageEffectsManager : MonoBehaviour
     void Start()
     {
         healthSystem = GetComponent<HealthSystem>();
-        damageVignette.color = new Color(1, 0, 0, 0);
     }
     
     void Update()
