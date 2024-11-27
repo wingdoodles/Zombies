@@ -7,7 +7,7 @@ public class CreateTestModels : EditorWindow
     private void OnDestroy()
     {
         // Clean up any remaining test objects
-        GameObject[] testObjects = GameObject.FindObjectsOfType<GameObject>();
+        GameObject[] testObjects = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
         foreach (GameObject obj in testObjects)
         {
             if (obj.name.StartsWith("Test"))
